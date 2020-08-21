@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useParams, useHistory } from "react-router-dom";
+import axiosWithAuth from "../utils/axiosWithAuth";
 
 const initialColor = {
   color: "",
@@ -9,10 +10,8 @@ const initialColor = {
 
 const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
-  const { id } = useParams()
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
-  const history = useHistory()
 
   const editColor = color => {
     setEditing(true);
@@ -22,22 +21,29 @@ const ColorList = ({ colors, updateColors }) => {
   const saveEdit = e => {
     e.preventDefault();
     // Make a put request to save your updated color
-    axios.put(`/api/colors/${id}`, colorToEdit)
+    axiosWithAuth()
+    .put(`http://localhost:5000/api/colors/${colorToEdit.id}`, colorToEdit)
     .then((res) => {
+      console.log(res,'i dont know')
       setColorToEdit(initialColor)
-      history.push("/bubble")
+      updateColors(colors.map(color => color.id === colorToEdit.id ? colorToEdit : color))
+      // history.push("/bubble")
     })
+    .catch(err => console.log(err))
     // think about where will you get the id from...
     // where is is saved right now?
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
-    axios
+    axiosWithAuth()
     .delete(`/api/colors/${color.id}`)
     .then((res) => {
-      console.log(res)
-      history.push('/api/colors')
+      console.log(res, 'ooga')
+      const newList = colors.filter(color => color.id !== res.data)
+      console.log(newList, 'colorsssssssssss')
+      updateColors(newList)
+      // history.push('/api/colors')
     })
   };
 
