@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useParams, useHistory } from "react-router-dom";
 
 const initialColor = {
   color: "",
@@ -8,8 +9,10 @@ const initialColor = {
 
 const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
+  const { id } = useParams()
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const history = useHistory()
 
   const editColor = color => {
     setEditing(true);
@@ -19,12 +22,23 @@ const ColorList = ({ colors, updateColors }) => {
   const saveEdit = e => {
     e.preventDefault();
     // Make a put request to save your updated color
+    axios.put(`/api/colors/${id}`, colorToEdit)
+    .then((res) => {
+      setColorToEdit(initialColor)
+      history.push("/bubble")
+    })
     // think about where will you get the id from...
     // where is is saved right now?
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
+    axios
+    .delete(`/api/colors/${color.id}`)
+    .then((res) => {
+      console.log(res)
+      history.push('/api/colors')
+    })
   };
 
   return (
